@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geneven"
+version = "0.1.0"
+description = "Precision drug-safety analysis: per-subgroup evidence sufficiency, then genotype-resolved signal detection"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.1",
+    "PyYAML>=6.0",
+    "statsmodels>=0.14",
+]
+
+[project.optional-dependencies]
+survival = ["lifelines>=0.27"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+
+[project.scripts]
+geneven = "geneven.pipeline:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::RuntimeWarning",
+]

@@ -1,0 +1,83 @@
+# Geneven analysis specification
+#
+# Written and frozen BEFORE the data is touched. Every threshold, subgroup and
+# covariate the pipeline uses comes from this file and nowhere else, so there
+# is no path by which an analysis decision can be made after seeing a result.
+#
+# Changing any value changes the specification hash, which is printed in every
+# report. Two reports with different hashes are different analyses.
+
+study_id: DEMO-2026-001
+drug: example_compound
+
+# Adverse events in scope. Each becomes a column in the analysis table and a
+# row in the test grid.
+events:
+  - severe_neutropenia
+  - hepatotoxicity
+  - qt_prolongation
+
+# Pre-specified subgroups. The test grid is subgroups x events, and its size
+# is fixed here, before any testing, so the FDR denominator is honest.
+subgroups:
+  - gene: CYP2C19
+    phenotype: Poor metabolizer
+    label: CYP2C19 poor metabolizers
+  - gene: CYP2C19
+    phenotype: Ultrarapid metabolizer
+    label: CYP2C19 ultrarapid metabolizers
+  - gene: CYP2D6
+    phenotype: Poor metabolizer
+    label: CYP2D6 poor metabolizers
+  - gene: CYP2D6
+    phenotype: Ultrarapid metabolizer
+    label: CYP2D6 ultrarapid metabolizers
+
+# Covariates entered into every model, alongside the ancestry components.
+covariates:
+  - age
+  - sex
+  - comorbidity_burden
+  - concomitant_inhibitor
+
+# Continuous ancestry principal components. Never discrete ancestry groups,
+# and never self-reported race or ethnicity as a substitute.
+ancestry_components: 5
+
+thresholds:
+  # Power at which the minimum detectable relative risk is computed.
+  power: 0.80
+  alpha: 0.05
+  # The relative risk the sponsor considers clinically meaningful. A subgroup
+  # counts as `supported` when the data could have detected this much.
+  meaningful_rr: 2.0
+  # How many multiples of meaningful_rr still counts as `limited` rather than
+  # `undetermined`.
+  limited_multiple: 3.0
+  # Subgroups below this are `undetermined` regardless of the arithmetic, and
+  # are suppressed from exports for disclosure control.
+  min_cell_size: 20
+
+# Expected phenotype frequencies among patients who will receive the drug.
+# Sourced from population allele frequencies and the indication's
+# epidemiology. NOT from the trial: the trial is the thing being audited.
+expected_population:
+  "CYP2C19:Poor metabolizer": 0.03
+  "CYP2C19:Ultrarapid metabolizer": 0.04
+  "CYP2D6:Poor metabolizer": 0.07
+  "CYP2D6:Ultrarapid metabolizer": 0.02
+
+# Drug-event pairs with no plausible pharmacogenomic mechanism, used to
+# calibrate the p-value distribution. Significant findings here mean residual
+# confounding is inflating the whole analysis.
+negative_controls:
+  - subgroup: "CYP2D6:Poor metabolizer"
+    event: qt_prolongation
+
+random_seed: 20261107
+
+notes: >
+  Illustrative specification shipped with the repository. Replace every
+  threshold with values agreed with the sponsor, and replace
+  expected_population with frequencies derived from the indication's
+  epidemiology before any real run.
