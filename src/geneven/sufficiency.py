@@ -1,11 +1,7 @@
 """Step 4 / Module 01 - the evidence sufficiency engine.
 
-This runs before any signal testing and decides which subgroups are eligible
-for it. Its output is a verdict per subgroup with the numbers behind it.
-
-The question it answers is not "is this drug safe in this subgroup?" but
-"could this dataset have told us if it weren't?". Those are different
-questions, and conflating them is the failure mode Geneven exists to prevent.
+Answers whether the data could have detected harm, not whether harm is
+present. Runs before Step 5 and gates it.
 """
 
 from __future__ import annotations
@@ -230,10 +226,6 @@ def run_sufficiency(
 
     return pd.DataFrame(rows)
 
-
-# ---------------------------------------------------------------------------
-# Trial-to-patient comparison
-# ---------------------------------------------------------------------------
 
 def coverage_gap(
     analysis_table: pd.DataFrame,

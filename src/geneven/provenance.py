@@ -1,8 +1,6 @@
-"""Run manifests: the five things needed to regenerate any number.
+"""Run manifests: data snapshot, reference versions, code commit, spec hash, seed.
 
-Every pipeline run writes one manifest recording the data snapshot, the pinned
-reference-database versions, the code commit, the specification hash and the
-random seed. A result without its manifest is not a Geneven result.
+These five regenerate any reported number.
 """
 
 from __future__ import annotations

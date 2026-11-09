@@ -1,12 +1,7 @@
-"""The analysis specification: written and frozen before the data is touched.
+"""The analysis specification, frozen by content hash before data access.
 
-Every threshold, subgroup, covariate and model choice lives in one YAML file.
-Nothing in the pipeline accepts an analysis parameter from anywhere else, so
-there is no path by which a decision can be made after seeing a result.
-
-Freezing computes a SHA-256 over the canonical form of the specification.
-That hash appears in every report. If a threshold changes, the hash changes,
-and the two reports can never be mistaken for one another.
+No code path accepts an analysis parameter from outside this file. The
+hash appears in every report, so changing a threshold changes the hash.
 """
 
 from __future__ import annotations
@@ -87,7 +82,6 @@ class AnalysisSpec:
     random_seed: int = 20261107
     notes: str = ""
 
-    # -- construction ------------------------------------------------------
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "AnalysisSpec":
@@ -105,7 +99,6 @@ class AnalysisSpec:
         kwargs = {k: v for k, v in raw.items() if k in known}
         return cls(subgroups=subgroups, thresholds=thresholds, **kwargs)
 
-    # -- freezing ----------------------------------------------------------
 
     def canonical(self) -> str:
         """Deterministic JSON form, used for hashing."""
@@ -114,7 +107,6 @@ class AnalysisSpec:
     def spec_hash(self) -> str:
         return hashlib.sha256(self.canonical().encode()).hexdigest()[:16]
 
-    # -- derived quantities ------------------------------------------------
 
     def test_grid(self) -> list[tuple[str, str]]:
         """Every (subgroup key, event) pair that will be tested.

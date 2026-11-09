@@ -1,9 +1,4 @@
-"""Pipeline orchestration and command-line entry point.
-
-Runs Steps 4 to 7 over a prepared analysis table. Steps 1 to 3 (acquisition,
-OMOP harmonization, diplotype calling) happen upstream and hand this stage a
-table; see :mod:`geneven.genomics` for the profile assembly that produces the
-phenotype columns.
+"""Pipeline orchestration and CLI. Runs Steps 4 to 7 over a prepared analysis table.
 """
 
 from __future__ import annotations
@@ -75,12 +70,10 @@ def run_analysis(
             + "\n  - ".join(problems)
         )
 
-    # Step 4 - sufficiency gates everything downstream.
     sufficiency = run_sufficiency(analysis_table, spec)
     coverage = coverage_gap(analysis_table, spec)
     enrollment = enrollment_plan(sufficiency, spec)
 
-    # Step 5 - only eligible pairs are tested.
     findings = run_signals(analysis_table, spec, sufficiency)
 
     negative_ids = {
@@ -92,13 +85,11 @@ def run_analysis(
         else None
     )
 
-    # Step 6 - tiers and ranking.
     if not findings.empty:
         findings = prioritize(
             findings, spec, severity_map=severity_map, known_pairs=known_pairs
         )
 
-    # Step 7 - reports and manifest.
     paths = write_reports(
         output_dir, sufficiency, coverage, enrollment, findings,
         spec, manifest, calibration,

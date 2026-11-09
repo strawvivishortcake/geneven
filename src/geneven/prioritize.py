@@ -1,7 +1,4 @@
 """Step 6 - evidence tiers and ranking.
-
-Turns a list of statistical results into a ranked set of findings a team can
-act on, and keeps exploratory results visibly separate from established ones.
 """
 
 from __future__ import annotations

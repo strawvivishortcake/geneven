@@ -1,15 +1,8 @@
 """Step 3 - genomic characterization.
 
-Turns raw genotypes into one pharmacogenomic profile per patient: diplotypes,
-metabolizer phenotypes, HLA carrier status, ancestry components, and a
-confidence flag on every call.
-
-Scope of this module. Diplotype calling from sequence or array data is done by
-PharmCAT (and Cyrius for CYP2D6 structural variants), not reimplemented here;
-:func:`load_pharmcat_calls` reads their output. What this module owns is
-everything downstream of the call: phenotype assignment against pinned CPIC
-tables, ancestry projection, and the confidence accounting that follows a
-result all the way into the report.
+Phenotype assignment, HLA status, ancestry projection and confidence
+accounting. Diplotype calling itself is PharmCAT and Cyrius; this reads
+their output.
 """
 
 from __future__ import annotations
@@ -35,10 +28,6 @@ class Confidence(str, Enum):
     IMPUTED = "imputed"          # imputed above the quality threshold
     INDETERMINATE = "indeterminate"  # no confident call, or no CPIC mapping
 
-
-# ---------------------------------------------------------------------------
-# Phenotype assignment
-# ---------------------------------------------------------------------------
 
 class PhenotypeTable:
     """CPIC diplotype-to-phenotype mapping, loaded from a pinned release.
@@ -127,10 +116,6 @@ def _normalise_diplotype(diplotype: str) -> str:
     return f"{first}/{second}"
 
 
-# ---------------------------------------------------------------------------
-# PharmCAT ingestion
-# ---------------------------------------------------------------------------
-
 def load_pharmcat_calls(path: str | Path) -> pd.DataFrame:
     """Read PharmCAT JSON output into one row per person per gene.
 
@@ -194,10 +179,6 @@ def build_profiles(
     )
 
 
-# ---------------------------------------------------------------------------
-# HLA
-# ---------------------------------------------------------------------------
-
 def hla_carrier_status(
     hla_calls: pd.DataFrame, allele: str, min_probability: float = 0.9
 ) -> pd.DataFrame:
@@ -224,10 +205,6 @@ def hla_carrier_status(
             rows.append((person, allele, "Non-carrier", Confidence.DIRECT.value))
     return pd.DataFrame(rows, columns=["person_id", "gene", "phenotype", "confidence"])
 
-
-# ---------------------------------------------------------------------------
-# Ancestry
-# ---------------------------------------------------------------------------
 
 @dataclass
 class AncestryProjector:

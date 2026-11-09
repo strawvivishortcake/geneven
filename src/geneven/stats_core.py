@@ -1,10 +1,6 @@
-"""Statistical primitives shared by the sufficiency and signal engines.
+"""Statistical primitives for the sufficiency and signal engines.
 
-Everything here is deliberately plain: closed-form or root-found quantities
-built on numpy/scipy, with no hidden state. A sponsor biostatistician must be
-able to read each function and reproduce it by hand.
-
-References for the formulae used:
+Formulae implemented:
   - Two-proportion power: normal approximation, unpooled variance
     (Fleiss, Levin & Paik, Statistical Methods for Rates and Proportions, 3rd ed.)
   - Clopper-Pearson interval: exact binomial, Beta quantile form
@@ -27,10 +23,6 @@ __all__ = [
     "FirthLogit",
 ]
 
-
-# --------------------------------------------------------------------------
-# Two-proportion power, inverted three ways
-# --------------------------------------------------------------------------
 
 def power_two_proportions(
     n_exposed: float,
@@ -147,10 +139,6 @@ def required_n_per_arm(
     return float(optimize.brentq(shortfall, lo, n_max, xtol=0.5))
 
 
-# --------------------------------------------------------------------------
-# Exact interval estimation, including the zero-event case
-# --------------------------------------------------------------------------
-
 def clopper_pearson(
     events: int, n: int, alpha: float = 0.05
 ) -> tuple[float, float]:
@@ -181,10 +169,6 @@ def rule_of_three_upper(n: int) -> float:
     return 3.0 / n if n > 0 else 1.0
 
 
-# --------------------------------------------------------------------------
-# Multiplicity
-# --------------------------------------------------------------------------
-
 def benjamini_hochberg(pvalues) -> np.ndarray:
     """Benjamini-Hochberg q-values over the full pre-specified test grid.
 
@@ -212,10 +196,6 @@ def benjamini_hochberg(pvalues) -> np.ndarray:
     return q
 
 
-# --------------------------------------------------------------------------
-# Firth penalized logistic regression
-# --------------------------------------------------------------------------
-
 class FirthLogit:
     """Firth-penalized logistic regression.
 
@@ -236,7 +216,6 @@ class FirthLogit:
         self.loglik_: float | None = None
         self.converged_: bool = False
 
-    # -- internals ---------------------------------------------------------
 
     @staticmethod
     def _probs(X: np.ndarray, beta: np.ndarray) -> np.ndarray:
@@ -310,7 +289,6 @@ class FirthLogit:
         result = optimize.minimize(negative, start, method="BFGS")
         return -float(result.fun)
 
-    # -- public API --------------------------------------------------------
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> "FirthLogit":
         X = np.asarray(X, dtype=float)

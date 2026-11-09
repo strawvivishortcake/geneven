@@ -1,9 +1,4 @@
-"""Step 7 - reporting.
-
-Renders the two deliverables defined in the scope: the evidence-gap report
-(Module 01) and the safety signal report (Module 02). Every report prints the
-specification hash, the grid size and the pinned reference versions, so a
-reader can see what produced it and regenerate it.
+"""Step 7 - the evidence-gap report (Module 01) and safety signal report (Module 02).
 """
 
 from __future__ import annotations

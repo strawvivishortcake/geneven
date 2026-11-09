@@ -1,13 +1,8 @@
 """Step 5 / Module 02 - the signal analysis engine.
 
-The defensible claim is not that an event looks more common in one genotype
-group. It is that the drug-event association *differs* by genotype. So the
-primary result is a formal interaction test, and everything else in this
-module supports or qualifies it.
-
-Only subgroup-event pairs that cleared Step 4 are tested. Pairs labelled
-`supported` are confirmatory; `limited` pairs are analysed and reported as
-exploratory; `undetermined` pairs are never tested.
+The estimand is the genotype x exposure interaction, not a raw rate
+difference. Only pairs cleared by Step 4 are tested; `supported` pairs
+are confirmatory, `limited` pairs exploratory, `undetermined` untested.
 """
 
 from __future__ import annotations
@@ -46,10 +41,6 @@ class InteractionResult:
         return asdict(self)
 
 
-# ---------------------------------------------------------------------------
-# Model selection
-# ---------------------------------------------------------------------------
-
 def _min_cell_count(frame: pd.DataFrame, event: str) -> int:
     """Smallest count in the 2x2x2 of exposure x genotype x outcome.
 
@@ -76,10 +67,6 @@ def choose_model(frame: pd.DataFrame, event: str, rare_threshold: int = 10) -> s
     """
     return "firth" if _min_cell_count(frame, event) < rare_threshold else "logistic"
 
-
-# ---------------------------------------------------------------------------
-# The primary test
-# ---------------------------------------------------------------------------
 
 def _design_matrix(
     frame: pd.DataFrame, covariates: list[str]
@@ -239,10 +226,6 @@ def time_to_event_interaction(
     return result
 
 
-# ---------------------------------------------------------------------------
-# Supporting analyses
-# ---------------------------------------------------------------------------
-
 def shrunk_disproportionality(
     a: int, b: int, c: int, d: int, prior_strength: float = 0.5
 ) -> dict:
@@ -324,10 +307,6 @@ def calibrate_with_negative_controls(
         "median_p": float(controls["p_value"].median()),
     }
 
-
-# ---------------------------------------------------------------------------
-# Orchestration
-# ---------------------------------------------------------------------------
 
 def run_signals(
     analysis_table: pd.DataFrame,

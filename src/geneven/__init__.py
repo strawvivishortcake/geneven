@@ -1,13 +1,7 @@
 """Geneven - precision drug-safety analysis.
 
-Two questions, in this order, for every genetically defined subgroup:
-
-  1. Do we have enough evidence to know?   (Module 01, :mod:`geneven.sufficiency`)
-  2. Does this drug harm this subgroup?    (Module 02, :mod:`geneven.signals`)
-
-The order is enforced in code, not by convention: :func:`run_signals` only
-tests pairs that :func:`run_sufficiency` cleared, so the pipeline cannot
-produce a null result in an underpowered subgroup and let it read as safety.
+run_signals() tests only pairs that run_sufficiency() cleared, so an
+underpowered subgroup cannot return a null that reads as safety.
 """
 
 from .spec import AnalysisSpec, Subgroup, SufficiencyThresholds
