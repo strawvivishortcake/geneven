@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[survival,dev]"
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
+
+      - name: Run the synthetic demo end to end
+        # The demo is a second check on the pipeline: it asserts that a
+        # planted effect is recovered and that an under-enrolled subgroup is
+        # reported undetermined rather than clean.
+        run: python examples/run_demo.py
